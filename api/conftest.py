@@ -1,7 +1,11 @@
 import os
 
+import pytest
 from alembic.config import Config
 from alembic.command import upgrade
+
+from db.connect import async_session
+from db.repository import BaseRepository
 
 
 def pytest_sessionstart():
@@ -11,5 +15,10 @@ def pytest_sessionstart():
 
 
 def pytest_sessionfinish():
-    if os.path.isfile("bball_test.db"):
-        os.remove("bball_test.db")
+    if os.path.isfile("./data/bball_test.db"):
+        os.remove("./data/bball_test.db")
+
+
+@pytest.fixture
+def base_repository():
+    return BaseRepository(async_session)

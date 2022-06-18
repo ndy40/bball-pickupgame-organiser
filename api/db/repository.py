@@ -1,8 +1,6 @@
 from typing import AsyncIterable, Dict, Protocol
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from .model import Base
+from .model import Base, User
 
 
 class AbstractRepository(Protocol):
@@ -30,14 +28,22 @@ class BaseRepository(AbstractRepository):
             await session.refresh(o)
         return o
 
-    async def get(self, model_id: int) -> Base:
-        return await super().get(model_id)
+    async def get(self, model: Base, model_id: int) -> Base:
+        async with self.session() as session:
+            return await session.get(model, model_id)
 
     async def get_one(self, filters: Dict) -> Base:
         """filter and return the first result"""
 
-    async def delete(self, model_id: int) -> None:
-        return await super().delete(model_id)
+    async def delete(self, model: Base) -> None:
+        async with self.session() as session:
+            async with session.begin():
+                await session.delete(model)
 
-    async def list(self, filters: Dict = None) -> AsyncIterable[Base]:
+    async def list(self, model: Base, filters: Dict = None) -> AsyncIterable[Base]:
         return await super().list(filters)
+
+
+class UserRepository(BaseRepository):
+    async def get(self, model_id: int) -> Base:
+        return await super().get(User, model_id)
