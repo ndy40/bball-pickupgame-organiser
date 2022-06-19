@@ -31,3 +31,15 @@ async def test_repo_delete(base_repository):
     await base_repository.delete(new_user)
     find_user = await base_repository.get(User, tmp_id)
     assert find_user is None
+
+
+@pytest.mark.asyncio
+async def test_repo_get_one(base_repository):
+    await base_repository.add(User(username=f"user#1"))
+    result = await base_repository.get_one(User, filters={"username": "user#1"})
+    assert isinstance(result[0], User)
+
+
+async def test_repo_get_one_returns_none_when_no_result(base_repository):
+    result = await base_repository.get_one(User, filters={'username': 'user#2'})
+    assert result is None

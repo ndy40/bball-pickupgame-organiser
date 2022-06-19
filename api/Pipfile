@@ -11,6 +11,7 @@ pydantic = "~=1.9.1"
 python-dotenv = "*"
 aiosqlite = "~=0.17.0"
 pytest-asyncio = "==0.18.3"
+uvicorn = "*"
 
 [dev-packages]
 pytest = "~=7.1.2"
