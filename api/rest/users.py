@@ -26,7 +26,3 @@ async def login(username: str) -> str:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='invalid auth')
 
     return TokenModel(token=token)
-
-
-
-
