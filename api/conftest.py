@@ -15,8 +15,8 @@ def pytest_sessionstart():
 
 
 def pytest_sessionfinish():
-    if os.path.isfile("./data/bball_test.db"):
-        os.remove("./data/bball_test.db")
+    if os.path.isfile("data/bball_test.db"):
+        os.remove("data/bball_test.db")
 
 
 @pytest.fixture
