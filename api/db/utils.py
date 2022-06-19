@@ -20,7 +20,7 @@ class QueryFilterExpr:
     @singledispatchmethod
     def _expr(self, field, value):
         if isinstance(value, str) and "__like" in field:
-            field = field.replace('__like', '')
+            field = field.replace("__like", "")
             return self.query.where(getattr(self.model, field).like(f"%{value}%"))
 
         return self.query.where(getattr(self.model, field) == value)

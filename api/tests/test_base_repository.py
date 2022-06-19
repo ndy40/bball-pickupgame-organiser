@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 from db.model import User
@@ -54,5 +56,16 @@ async def test_repo_list_returns_all_items(base_repository):
 
 @pytest.mark.asyncio
 async def test_repo_list_returns_some_items_with_like(base_repository):
-    results = await base_repository.list(User, filters={'username__like': '#1'})
-    assert next(results)[0].username == 'user#1'
+    results = await base_repository.list(User, filters={"username__like": "#1"})
+    assert next(results)[0].username == "user#1"
+
+
+@pytest.mark.asyncio
+async def test_repo_update_works(base_repository):
+    result = await base_repository.get_one(User, filters={'username': 'user#1'})
+    user = result[0]
+    current_time = datetime.now()
+    user.last_login = current_time
+    await base_repository.update(user)
+    user = await base_repository.get(User, model_id=user.id)
+    assert user.last_login == current_time

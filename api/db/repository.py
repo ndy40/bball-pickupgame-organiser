@@ -4,6 +4,7 @@ from sqlalchemy.orm import Query
 
 from .model import Base, User, Session
 from .utils import QueryFilterExpr
+from .connect import async_session
 
 
 class AbstractRepository(Protocol):
@@ -30,6 +31,12 @@ class BaseRepository(AbstractRepository):
                 session.add(o)
             await session.refresh(o)
         return o
+
+    async def update(self, o: Base) -> None:
+        async with self.session() as session:
+            async with session.begin():
+                await session.merge(o)
+                await session.flush()
 
     async def add(self, o: Base) -> Base:
         return await self.save(o)
@@ -74,10 +81,14 @@ class UserRepository(BaseRepository):
         return await super().get(self.model, model_id)
 
     async def find_username(self, username: str) -> User or None:
-        result = await self.get_one(self.model, filters={'username': username})
+        result = await self.get_one(self.model, filters={"username": username})
         return result[0] if result else None
 
 
 class SessionRepository(BaseRepository):
     async def get(self, model_id: int) -> Base:
         return await super().get(Session, model_id)
+
+
+user_repo = UserRepository(async_session)
+sess_repo = SessionRepository(async_session)
