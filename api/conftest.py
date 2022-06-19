@@ -5,7 +5,7 @@ from alembic.config import Config
 from alembic.command import upgrade
 
 from db.connect import async_session
-from db.repository import BaseRepository
+from db.repository import BaseRepository, UserRepository
 
 
 def pytest_sessionstart():
@@ -22,3 +22,8 @@ def pytest_sessionfinish():
 @pytest.fixture
 def base_repository():
     return BaseRepository(async_session)
+
+
+@pytest.fixture
+def user_repository():
+    return UserRepository(async_session)

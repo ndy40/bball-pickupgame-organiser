@@ -1,7 +1,9 @@
 from typing import AsyncIterable, Dict, Protocol
 from sqlalchemy import select
+from sqlalchemy.orm import Query
 
 from .model import Base, User, Session
+from .utils import QueryFilterExpr
 
 
 class AbstractRepository(Protocol):
@@ -53,15 +55,29 @@ class BaseRepository(AbstractRepository):
             async with session.begin():
                 await session.delete(model)
 
-    async def list(self, model: Base, filters: Dict = None) -> AsyncIterable[Base]:
-        return await super().list(filters)
+    async def list(self, model: Base, filters: Dict = None, query: Query = None) -> AsyncIterable[Base]:
+        if not query:
+            query = select(model)
+
+        if filters:
+            query = await QueryFilterExpr.apply_filter(model=model, attributes=filters, query=query)
+
+        async with self.session() as session:
+            result = await session.execute(query)
+            return result
 
 
 class UserRepository(BaseRepository):
+    model = User
+
     async def get(self, model_id: int) -> Base:
-        return await super().get(User, model_id)
+        return await super().get(self.model, model_id)
+
+    async def find_username(self, username: str) -> User or None:
+        result = await self.get_one(self.model, filters={'username': username})
+        return result[0] if result else None
 
 
-class SessionRespository(BaseRepository):
+class SessionRepository(BaseRepository):
     async def get(self, model_id: int) -> Base:
         return await super().get(Session, model_id)

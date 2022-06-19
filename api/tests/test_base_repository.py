@@ -40,6 +40,19 @@ async def test_repo_get_one(base_repository):
     assert isinstance(result[0], User)
 
 
+@pytest.mark.asyncio
 async def test_repo_get_one_returns_none_when_no_result(base_repository):
-    result = await base_repository.get_one(User, filters={'username': 'user#2'})
+    result = await base_repository.get_one(User, filters={"username": "user#2"})
     assert result is None
+
+
+@pytest.mark.asyncio
+async def test_repo_list_returns_all_items(base_repository):
+    results = await base_repository.list(User)
+    assert all(item for item in results if isinstance(item[0], User))
+
+
+@pytest.mark.asyncio
+async def test_repo_list_returns_some_items_with_like(base_repository):
+    results = await base_repository.list(User, filters={'username__like': '#1'})
+    assert next(results)[0].username == 'user#1'
